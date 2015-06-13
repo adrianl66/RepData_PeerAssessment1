@@ -56,7 +56,7 @@ dfnoNA <- filter(df,steps != "NA")
 num1 <- nrow(dfnoNA)
 numNA <- num - num1
 ```
-Number of rows without missing values(NA) is 17568.  
+Number of rows without missing values(NA) is 15264.  
 Number of rows with missing values(NA) is 2304  
   
 1) Group data by each day then sum up the number of steps for that day.  
@@ -64,8 +64,8 @@ Number of rows with missing values(NA) is 2304
 
 ```r
 dfnoNA <- group_by(dfnoNA,date) 
-dfnoNA <- summarise(dfnoNA,TotalSteps = sum(steps))
-hist(dfnoNA$TotalSteps,main="Histogram of Total Steps",breaks=20)
+dfh <- summarise(dfnoNA,TotalSteps = sum(steps))
+hist(dfh$TotalSteps,main="Histogram of Total Steps",breaks=20)
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
@@ -73,16 +73,33 @@ hist(dfnoNA$TotalSteps,main="Histogram of Total Steps",breaks=20)
 3) Calculate the mean and median of the total number of steps taken per day
 
 ```r
-mean <- summarise(dfnoNA,mean(TotalSteps))
-median <- summarise(dfnoNA,median(TotalSteps))
+mean <- summarise(dfh,mean(TotalSteps))
+median <- summarise(dfh,median(TotalSteps))
 ```
 Mean is 1.0766189\times 10^{4}  
 Median is 10765
 
 ## What is the average daily activity pattern?
+1) Make a time series plot of the 5 minute interval(x axis) and the average  
+number of steps taken, averaged across all days(y axis)
 
+```r
+dfnoNA <- tapply(dfnoNA$steps,dfnoNA$interval,mean)
+plot(y=dfnoNA,x=names(dfnoNA),type='l',main="Average Number of Steps by Interval",xlab="Interval",ylab="Average Number of Steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+  
+2) The 5 minute interval containing the maximum number of steps is  
 
+```r
+dfnoNA[dfnoNA == max(dfnoNA)]
+```
+
+```
+##      835 
+## 206.1698
+```
 ## Imputing missing values
 
 
