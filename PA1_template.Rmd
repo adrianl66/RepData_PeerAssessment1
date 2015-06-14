@@ -16,7 +16,7 @@ str(df)
 Convert the date string into proper Date format
 ```{r}
 library("dplyr")
-df <- tbl_df(df)
+library("lattice")
 df <- mutate(df,date = as.Date(date, format = '%Y-%m-%d'))
 str(df)
 ```
@@ -36,7 +36,7 @@ Number of rows with missing values(NA) is `r numNA`
 ```{r}
 dfnoNA <- group_by(dfnoNA,date) 
 dfh <- summarise(dfnoNA,TotalSteps = sum(steps))
-hist(dfh$TotalSteps,main="Histogram of Total Steps",breaks=20)
+hist(dfh$TotalSteps,main="Histogram of Total Steps",breaks=10)
 ```
   
 3) Calculate the mean and median of the total number of steps taken per day
@@ -52,15 +52,63 @@ Median is `r median`
 number of steps taken, averaged across all days(y axis)
 ```{r}
 dfnoNA <- tapply(dfnoNA$steps,dfnoNA$interval,mean)
+head(dfnoNA)
 plot(y=dfnoNA,x=names(dfnoNA),type='l',main="Average Number of Steps by Interval",xlab="Interval",ylab="Average Number of Steps")
 ```
   
-2) The 5 minute interval containing the maximum number of steps is  
+2) The 5 minute interval containing the maximum number of steps is
 ```{r}
 dfnoNA[dfnoNA == max(dfnoNA)]
 ```
 ## Imputing missing values
+1) Our original dataframe had `r numNA` missing values. For example if we look at the head of the original dataframe:  
+```{r}
+head(df)
+```
+2) We can replace those missing values with the mean of the steps for the same interval from other days which are not missing data.  
+3) Lets store this new dataset in the dataframe dfnew  
+```{r}
+dfnew <- df
+dfnew[which(is.na(dfnew$steps)),1] <- dfnoNA[as.character(dfnew[which(is.na(dfnew$steps)),3])]
+head(dfnew)
+sum(is.na(dfnew))
+```
+4) As can be seen from above, there is no longer any missing data.  
+Lets plot a histogram of the new dataframe  
+```{r}
+dfnew <- group_by(dfnew,date) 
+dfh <- summarise(dfnew,TotalSteps = sum(steps))
+hist(dfh$TotalSteps,main="Histogram of Total Steps",breaks=10)
+```
 
-
+```{r}
+mean <- summarise(dfh,mean(TotalSteps))
+median <- summarise(dfh,median(TotalSteps))
+```
+Mean of the dataframe with imputed values is `r mean`  
+Median of the dataframe with imputed values is `r median`  
+There is not much difference to the values we had before imputing the values apart from the obvious increase in frequency for some of the intervals because there is now more data points. The shape of the histogram is similiar to the one before so    
+We can conclude that our methodology of imputing data is acceptable as it does not change the mean and median significantly.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+Separate out weekdays from weekends by using the weekdays function to find out the actual weekday from the date and categorising it in the new daytype column
+```{r}
+wd <- weekdays(dfnew$date)
+dfnew$daytype <- factor(wd,levels <- c('weekday','weekend'))
+dfnew$daytype[] <- 'weekday'
+dfnew$daytype[wd %in% c('Saturday','Sunday')] <- 'weekend'
+head(dfnew)
+```
+Plot a graph comparing average daily steps by interval on the weekends versus the weekdays  
+```{r}
+dfnew <- group_by(dfnew,interval,daytype)
+dfnew <- summarise(dfnew,averagesteps = mean(steps))
+head(dfnew)
+xyplot(averagesteps ~ interval | daytype,data=dfnew,type='l',layout=c(1,2))
+```
+
+We can see the differences between the two plots:  
+- 1) Subject wakes up earlier on the weekdays compared to the weekends which makes sense as subject needs to go to work.    
+- 2) There seems to be consistent spike of activity around 830-930am during the weekdays (walking to work maybe?)  
+- 3) There is a more even level of activity throughout the day on the weekends
+compared to weekdays which again makes sense as the subject is probably deskbound on the weekday.
