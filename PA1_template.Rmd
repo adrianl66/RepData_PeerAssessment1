@@ -6,6 +6,7 @@ output:
 ---
 
 # Adrian Lim June 2015
+ 
 ## Loading and preprocessing the data
 Uncompress the activity.zip file and read it
 ```{r}
@@ -13,10 +14,12 @@ filename <- unzip("activity.zip")
 df <- read.csv("activity.csv",header = TRUE,na.strings = "NA",sep = ",")
 str(df)
 ```
+Load the dplyr library
+```{r}
+library(dplyr)
+```
 Convert the date string into proper Date format
 ```{r}
-library("dplyr")
-library("lattice")
 df <- mutate(df,date = as.Date(date, format = '%Y-%m-%d'))
 str(df)
 ```
@@ -101,6 +104,7 @@ head(dfnew)
 ```
 Plot a graph comparing average daily steps by interval on the weekends versus the weekdays  
 ```{r}
+library(lattice)
 dfnew <- group_by(dfnew,interval,daytype)
 dfnew <- summarise(dfnew,averagesteps = mean(steps))
 head(dfnew)
@@ -108,7 +112,7 @@ xyplot(averagesteps ~ interval | daytype,data=dfnew,type='l',layout=c(1,2))
 ```
 
 We can see the differences between the two plots:  
-- 1) Subject wakes up earlier on the weekdays compared to the weekends which makes sense as subject needs to go to work.    
-- 2) There seems to be consistent spike of activity around 830-930am during the weekdays (walking to work maybe?)  
-- 3) There is a more even level of activity throughout the day on the weekends
+1) Subject wakes up earlier on the weekdays compared to the weekends which makes sense as subject needs to go to work.    
+2) There seems to be consistent spike of activity around 830-930am during the weekdays (walking to work maybe?)  
+3) There is a more even level of activity throughout the day on the weekends
 compared to weekdays which again makes sense as the subject is probably deskbound on the weekday.

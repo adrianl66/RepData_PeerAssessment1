@@ -1,6 +1,7 @@
 # Reproducible Research: Peer Assessment 1
 
 # Adrian Lim June 2015
+ 
 ## Loading and preprocessing the data
 Uncompress the activity.zip file and read it
 
@@ -16,10 +17,10 @@ str(df)
 ##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
 ```
-Convert the date string into proper Date format
+Load the dplyr library
 
 ```r
-library("dplyr")
+library(dplyr)
 ```
 
 ```
@@ -34,9 +35,9 @@ library("dplyr")
 ## 
 ##     intersect, setdiff, setequal, union
 ```
+Convert the date string into proper Date format
 
 ```r
-library("lattice")
 df <- mutate(df,date = as.Date(date, format = '%Y-%m-%d'))
 str(df)
 ```
@@ -68,7 +69,7 @@ dfh <- summarise(dfnoNA,TotalSteps = sum(steps))
 hist(dfh$TotalSteps,main="Histogram of Total Steps",breaks=10)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
   
 3) Calculate the mean and median of the total number of steps taken per day
 
@@ -97,7 +98,7 @@ head(dfnoNA)
 plot(y=dfnoNA,x=names(dfnoNA),type='l',main="Average Number of Steps by Interval",xlab="Interval",ylab="Average Number of Steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
   
 2) The 5 minute interval containing the maximum number of steps is
 
@@ -160,7 +161,7 @@ dfh <- summarise(dfnew,TotalSteps = sum(steps))
 hist(dfh$TotalSteps,main="Histogram of Total Steps",breaks=10)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-10-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
 
 
 ```r
@@ -198,6 +199,7 @@ head(dfnew)
 Plot a graph comparing average daily steps by interval on the weekends versus the weekdays  
 
 ```r
+library(lattice)
 dfnew <- group_by(dfnew,interval,daytype)
 dfnew <- summarise(dfnew,averagesteps = mean(steps))
 head(dfnew)
@@ -220,10 +222,10 @@ head(dfnew)
 xyplot(averagesteps ~ interval | daytype,data=dfnew,type='l',layout=c(1,2))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-13-1.png) 
+![](PA1_template_files/figure-html/unnamed-chunk-14-1.png) 
 
 We can see the differences between the two plots:  
-- 1) Subject wakes up earlier on the weekdays compared to the weekends which makes sense as subject needs to go to work.    
-- 2) There seems to be consistent spike of activity around 830-930am during the weekdays (walking to work maybe?)  
-- 3) There is a more even level of activity throughout the day on the weekends
+1) Subject wakes up earlier on the weekdays compared to the weekends which makes sense as subject needs to go to work.    
+2) There seems to be consistent spike of activity around 830-930am during the weekdays (walking to work maybe?)  
+3) There is a more even level of activity throughout the day on the weekends
 compared to weekdays which again makes sense as the subject is probably deskbound on the weekday.
